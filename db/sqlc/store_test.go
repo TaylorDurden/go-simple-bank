@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,7 @@ func TestTransferTx(t *testing.T) {
 	originalAccount2 := createRandAccount(t)
 
 	// run n concurrent transfer transactions
-	n := 2
+	n := 5
 	amount := int64(10)
 
 	errs := make(chan error)
@@ -23,8 +24,8 @@ func TestTransferTx(t *testing.T) {
 	for i := 0; i < n; i++ {
 		go func() {
 			result, err := store.TransferTx(context.Background(), TransferTxParams{
-				FromAccountId: originalAccount1.ID,
-				ToAccountId:   originalAccount2.ID,
+				FromAccountID: originalAccount1.ID,
+				ToAccountID:   originalAccount2.ID,
 				Amount:        amount,
 			})
 
@@ -114,4 +115,58 @@ func TestTransferTx(t *testing.T) {
 
 	require.Equal(t, originalAccount1.Balance-int64(n)*amount, updatedAccount1.Balance)
 	require.Equal(t, originalAccount2.Balance+int64(n)*amount, updatedAccount2.Balance)
+}
+
+func TestTransferTxDeadLock(t *testing.T) {
+	store := NewStore(testDB)
+
+	originalAccount2 := createRandAccount(t)
+	originalAccount1 := createRandAccount(t)
+
+	// run n concurrent transfer transactions
+	n := 10
+	amount := int64(10)
+
+	errs := make(chan error)
+
+	for i := 0; i < n; i++ {
+		fromAccountID := originalAccount1.ID
+		toAccountID := originalAccount2.ID
+
+		// switch the from/to accounts
+		if i%2 == 1 {
+			fromAccountID = originalAccount2.ID
+			toAccountID = originalAccount1.ID
+		}
+
+		go func() {
+			_, err := store.TransferTx(context.Background(), TransferTxParams{
+				FromAccountID: fromAccountID,
+				ToAccountID:   toAccountID,
+				Amount:        amount,
+			})
+
+			errs <- err
+		}()
+	}
+
+	for i := 0; i < n; i++ {
+		err := <-errs
+		require.NoError(t, err)
+	}
+
+	// check the final updated balances
+	updatedAccount1, err := testQueries.GetAccount(context.Background(), originalAccount1.ID)
+	require.NoError(t, err)
+
+	updatedAccount2, err := testQueries.GetAccount(context.Background(), originalAccount2.ID)
+	require.NoError(t, err)
+
+	fmt.Println(">>> after:", updatedAccount1.Balance, updatedAccount2.Balance)
+
+	// 5 transactions transfer from account1 to account2
+	// 5 transactions transfer from account2 to account1
+	// so the originalAccount1 and originalAccount2 balances stay unchanged
+	require.Equal(t, originalAccount1.Balance, updatedAccount1.Balance)
+	require.Equal(t, originalAccount2.Balance, updatedAccount2.Balance)
 }
