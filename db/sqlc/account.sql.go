@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"log"
 )
 
 const addAccountBalance = `-- name: AddAccountBalance :one
@@ -132,7 +133,7 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Account
+	items := []Account{}
 	for rows.Next() {
 		var i Account
 		if err := rows.Scan(
@@ -163,7 +164,7 @@ RETURNING id, owner, balance, currency, created_at
 `
 
 type UpdateAccountParams struct {
-	ID      int64 `json:"id"`
+	ID      int64 `uri:"id"`
 	Balance int64 `json:"balance"`
 }
 
