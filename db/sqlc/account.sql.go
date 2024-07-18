@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"log"
 )
 
 const addAccountBalance = `-- name: AddAccountBalance :one
