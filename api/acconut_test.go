@@ -159,7 +159,7 @@ func TestCreateAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "BadRequest - Missing Owner",
+			name: "BadRequest Missing Owner",
 			body: gin.H{
 				"currency": "JAP",
 				"owner":    account.Owner,
@@ -463,7 +463,7 @@ func TestUpdateAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name:      "InternalError - ErrConnDone",
+			name:      "InternalError ErrConnDone",
 			accountID: updatedAccount.ID,
 			body: gin.H{
 				"balance": updatedAccount.Balance,
@@ -484,7 +484,7 @@ func TestUpdateAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name:      "StatusNotFound - ErrNoRows",
+			name:      "StatusNotFound ErrNoRows",
 			accountID: updatedAccount.ID,
 			body: gin.H{
 				"balance": updatedAccount.Balance,
@@ -501,7 +501,7 @@ func TestUpdateAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name:      "BadRequest - Invalid Account ID",
+			name:      "BadRequest Invalid Account ID",
 			accountID: 0,
 			body: gin.H{
 				"balance": updatedAccount.Balance,
@@ -520,7 +520,7 @@ func TestUpdateAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name:      "BadRequest - Invalid Account Balance",
+			name:      "BadRequest Invalid Account Balance",
 			accountID: updatedAccount.ID,
 			body: gin.H{
 				"balance": -10,
