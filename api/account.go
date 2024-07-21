@@ -11,7 +11,7 @@ import (
 
 type createAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
+	Currency string `json:"currency" binding:"required,oneof=USD EUR RMB"`
 }
 
 type getAccountRequest struct {
@@ -108,7 +108,7 @@ func (server *Server) deleteAccountHandler(ctx *gin.Context) {
 
 type updateAccountRequest struct {
 	ID      int64 `uri:"id" binding:"required,min=1"`
-	Balance int64 `json:"balance"`
+	Balance int64 `json:"balance" binding:"min=0"`
 }
 
 func (server *Server) updateAccountHandler(ctx *gin.Context) {
@@ -122,6 +122,7 @@ func (server *Server) updateAccountHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	log.Printf("req.Balance: %d", req.Balance)
 	arg := db.UpdateAccountParams{
 		ID:      req.ID,
 		Balance: req.Balance,
