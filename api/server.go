@@ -30,6 +30,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		config:    config,
 	}
 
+	// custom validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", validCurrency)
 	}
@@ -53,7 +54,7 @@ func (server *Server) setupServerRouter() {
 	authRoutes.DELETE("/accounts/:id", server.deleteAccountHandler)
 	authRoutes.PATCH("/accounts/:id", server.updateAccountHandler)
 
-	router.POST("/transfers", server.createTransferHandler)
+	authRoutes.POST("/transfers", server.createTransferHandler)
 
 	server.router = router
 }
