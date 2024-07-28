@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	db "github.com/taylordurden/go-simple-bank/db/sqlc"
+	"github.com/taylordurden/go-simple-bank/token"
 )
 
 type createAccountRequest struct {
@@ -80,8 +81,9 @@ func (server *Server) listPagedAccountHandler(ctx *gin.Context) {
 	}
 
 	log.Printf("size:%d, page: %d", req.Size, req.Page)
-
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListAccountsParams{
+		Owner:  authPayload.Username,
 		Limit:  req.Size,
 		Offset: (req.Page - 1) * req.Size,
 	}
