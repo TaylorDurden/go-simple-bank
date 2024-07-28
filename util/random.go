@@ -31,7 +31,7 @@ func RandomString(n int) string {
 
 // RandomOwner generates a random owner name of 6 length
 func RandomOwner() string {
-	return RandomString(6)
+	return RandomString(8)
 }
 
 func RandomBalance() int64 {

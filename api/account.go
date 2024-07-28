@@ -2,12 +2,14 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	db "github.com/taylordurden/go-simple-bank/db/sqlc"
+	"github.com/taylordurden/go-simple-bank/token"
 )
 
 type createAccountRequest struct {
@@ -35,6 +37,14 @@ func (server *Server) getAccountHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if account.Owner != authPayload.Username {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, account)
 }
 
@@ -80,8 +90,9 @@ func (server *Server) listPagedAccountHandler(ctx *gin.Context) {
 	}
 
 	log.Printf("size:%d, page: %d", req.Size, req.Page)
-
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListAccountsParams{
+		Owner:  authPayload.Username,
 		Limit:  req.Size,
 		Offset: (req.Page - 1) * req.Size,
 	}
