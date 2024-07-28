@@ -1,39 +1,61 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	db "github.com/taylordurden/go-simple-bank/db/sqlc"
+	"github.com/taylordurden/go-simple-bank/token"
+	"github.com/taylordurden/go-simple-bank/util"
 )
 
 // serve http requests for our banking service
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	config    util.Config
+	store     db.Store
+	tokenAuth token.Authenticator
+	router    *gin.Engine
 }
 
-func NewServer(store db.Store) *Server {
-	server := &Server{store: store}
-	router := gin.Default()
+func NewServer(config util.Config, store db.Store) (*Server, error) {
+	tokenAuth, err := token.NewPasetoAuthenticator(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
+	}
+	server := &Server{
+		store:     store,
+		tokenAuth: tokenAuth,
+		config:    config,
+	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", validCurrency)
 	}
 
+	server.setupServerRouter()
+	return server, nil
+}
+
+func (server *Server) setupServerRouter() {
+	router := gin.Default()
+
 	router.GET("/users/:username", server.getUserHandler)
 	router.POST("/users", server.createUserHandler)
+	router.POST("/users/login", server.loginUser)
 
-	router.POST("/accounts", server.createAccountHandler)
-	router.GET("/accounts/:id", server.getAccountHandler)
-	router.GET("/accounts", server.listPagedAccountHandler)
-	router.DELETE("/accounts/:id", server.deleteAccountHandler)
-	router.PATCH("/accounts/:id", server.updateAccountHandler)
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenAuth))
+
+	authRoutes.POST("/accounts", server.createAccountHandler)
+	authRoutes.GET("/accounts/:id", server.getAccountHandler)
+	authRoutes.GET("/accounts", server.listPagedAccountHandler)
+	authRoutes.DELETE("/accounts/:id", server.deleteAccountHandler)
+	authRoutes.PATCH("/accounts/:id", server.updateAccountHandler)
 
 	router.POST("/transfers", server.createTransferHandler)
 
 	server.router = router
-	return server
 }
 
 func (server *Server) Start(address string) error {
