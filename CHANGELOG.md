@@ -52,5 +52,10 @@ aws secretsmanager get-secret-value --secret-id simple-bank --query SecretString
   Login Succeeded
 
   # pull ECR image URI
-  docker pull 975049981118.dkr.ecr.us-east-1.amazonaws.com/simplebank:08287f75925f78f4eb491aaeb3267b4812edcf4d
+  docker pull 975049981118.dkr.ecr.us-east-1.amazonaws.com/simplebank:a3a1068d3d76e6f89de6330ec77c48d0c82dddfe
+
+  # docker run pulled ECR image locally on port 8080 to start api server
+  docker run -p 8080:8080 975049981118.dkr.ecr.us-east-1.amazonaws.com/simplebank:a3a1068d3d76e6f89de6330ec77c48d0c82dddfe
   ```
+
+- test the apis with postman and check data in production database
