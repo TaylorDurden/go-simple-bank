@@ -34,6 +34,8 @@ aws secretsmanager get-secret-value --secret-id simple-bank --query SecretString
   REFRESH_TOKEN_DURATION=24h
   ```
 
+- add `source /app/app.env` in start.sh to effect the env vars
+
 - add a step after `Login to Amazon ECR` in .github/workflows/deploy.yml
 
   ```yaml
@@ -42,3 +44,13 @@ aws secretsmanager get-secret-value --secret-id simple-bank --query SecretString
   ```
 
 - make PR to build a ECR image
+- validate the ECR image locally with aws ecr get-login-password command
+
+  ```bash
+  aws ecr get-login-password | docker login --username AWS --password-stdin 975049981118.dkr.ecr.us-east-1.amazonaws.com
+
+  Login Succeeded
+
+  # pull ECR image URI
+  docker pull 975049981118.dkr.ecr.us-east-1.amazonaws.com/simplebank:08287f75925f78f4eb491aaeb3267b4812edcf4d
+  ```

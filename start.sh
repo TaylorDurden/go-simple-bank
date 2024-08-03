@@ -5,6 +5,7 @@ set -e
 
 # Run database migration using the migrate tool
 echo "run db migration"
+source /app/app.env
 /app/migrate -path /app/migration -database "$DB_SOURCE" -verbose up
 
 # Start the application with the provided command-line arguments
