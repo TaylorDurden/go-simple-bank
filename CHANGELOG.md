@@ -5,4 +5,4 @@
 ### Added
 
 - Add docker-compose & Dockerfile to make all services up once
-- PR: https://github.com/TaylorDurden/go-simple-bank/pull/14 11
+- PR: https://github.com/TaylorDurden/go-simple-bank/pull/14
