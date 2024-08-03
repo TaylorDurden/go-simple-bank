@@ -1,20 +1,33 @@
 ---
+# Define services for the application
 services:
+  # Postgres database service
   postgres:
+    # Use the official Postgres 14 image with Alpine Linux
     image: postgres:14-alpine
+    # Set environment variables for the Postgres database
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=simple_bank
+      - POSTGRES_USER=root # Set the Postgres username
+      - POSTGRES_PASSWORD=postgres # Set the Postgres password
+      - POSTGRES_DB=simple_bank # Set the default database name
+  # API service
   api:
+    # Build the Docker image for the API service
     build:
+      # Use the current directory as the build context
       context: .
+      # Use the Dockerfile in the current directory
       dockerfile: Dockerfile
+    # Expose port 8080 on the host machine and map it to port 8080 in the container
     ports:
       - 8080:8080
+    # Set environment variables for the API service, overwrite the app.env same env var
     environment:
-      - DB_SOURCE=postgresql://root:postgres@postgres:5432/simple_bank?sslmode=disable
+      - DB_SOURCE=postgresql://root:postgres@postgres:5432/simple_bank?sslmode=disable # Set the database connection string
+    # Depend on the Postgres service to start before the API service
     depends_on:
       - postgres
+    # Use a custom entrypoint to wait for the Postgres service to be available
     entrypoint: ["/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh"]
+    # Run the main command for the API service
     command: ["/app/main"]
