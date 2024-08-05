@@ -343,3 +343,7 @@ kubectl apply -f eks/deployment.yaml
   ```
 
 - kubectl apply -f eks/issuer.yaml
+
+### Configure github actions to auto deploy to EKS
+
+- check out the file: `.github/workflows/deploy-eks.yml`
