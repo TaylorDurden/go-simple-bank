@@ -16,7 +16,10 @@ spec:
     spec:
       containers:
         - name: simple-bank-api
+          # tag new built image `latest`
           image: 975049981118.dkr.ecr.us-east-1.amazonaws.com/simplebank:latest
+          # make sure pull latest ECR image before deploying new container
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
       restartPolicy: Always
