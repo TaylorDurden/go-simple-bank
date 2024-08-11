@@ -1,5 +1,11 @@
 # Changelog
 
+### docker run a local postgres database
+
+```bash
+$ docker run -d --name postgres -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=simple_bank postgres:14-alpine
+```
+
 ### [Docker] Write docker-compose file and control service start-up orders with wait-for.sh
 
 - Add docker-compose & Dockerfile to make all services up once

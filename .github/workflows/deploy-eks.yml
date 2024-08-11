@@ -2,7 +2,7 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 # AWS ECR: https://github.com/marketplace/actions/amazon-ecr-login-action-for-github-actions
 
-name: Deploy to production
+name: Deploy to production EKS
 
 on:
   push:
