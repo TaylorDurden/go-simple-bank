@@ -45,6 +45,7 @@ func (server *Server) setupServerRouter() {
 	router.GET("/users/:username", server.getUserHandler)
 	router.POST("/users", server.createUserHandler)
 	router.POST("/users/login", server.loginUser)
+	router.POST("/tokens/refresh", server.refreshTokenHandler)
 
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenAuth))
 
