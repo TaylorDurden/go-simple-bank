@@ -1,5 +1,17 @@
 # Changelog
 
+### run a local postgres database in docker
+
+```bash
+$ make postgres
+```
+
+### run a local api server
+
+```bash
+$ make server
+```
+
 ### [Docker] Write docker-compose file and control service start-up orders with wait-for.sh
 
 - Add docker-compose & Dockerfile to make all services up once
