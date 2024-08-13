@@ -1,3 +1,5 @@
+DB_URL=postgresql://root:postgres@127.0.0.1:5432/simple_bank?sslmode=disable
+
 postgres:
 	docker run --name postgres12 --network bank-network -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=postgres -d postgres:12-alpine
 
@@ -8,10 +10,22 @@ dropdb:
 	docker exec -it postgres12 dropdb simple_bank
 
 migrate-up:
-	migrate -path db/migration -database "postgresql://root:postgres@127.0.0.1:5432/simple_bank?sslmode=disable" -verbose up
+	migrate -path db/migration -database "$(DB_URL)" -verbose up
+
+migrate-up1:
+	migrate -path db/migration -database "$(DB_URL)" -verbose up 1
 
 migrate-down:
-	migrate -path db/migration -database "postgresql://root:postgres@127.0.0.1:5432/simple_bank?sslmode=disable" -verbose down
+	migrate -path db/migration -database "$(DB_URL)" -verbose down
+
+migrate-down1:
+	migrate -path db/migration -database "$(DB_URL)" -verbose down 1
+
+db_docs:
+	dbdocs build doc/db.dbml
+
+db_schema:
+	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
 
 sqlc:
 	sqlc generate
@@ -25,4 +39,4 @@ server:
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/taylordurden/go-simple-bank/db/sqlc Store
 
-.PHONY: postgres createdb dropdb migrate-up migrate-down sqlc test server mock
+.PHONY: postgres createdb dropdb migrate-up migrate-down sqlc test server mock db_docs db_schema
